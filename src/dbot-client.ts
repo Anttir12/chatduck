@@ -73,19 +73,3 @@ export const initialiseDbotClient = async () => {
     setInterval(getTokens, 21600000);  // refresh token is valid for 24 hours but refresh every 6 tokens anyway
     setInterval(refreshAccessToken, 150000);  // Access token is valid for 5 minutes. let's refresh it every 2,5 minutes
 };
-
-export const play = async (ytUrl: string, volume?: number): Promise<boolean> => {
-    if(!currentTokens){
-        return false;
-    }
-    try {
-        const response = await axios.post(BASE_URL + 'bot/play_yt', {yt_url: ytUrl, volume: volume},
-        {headers: {Authorization: 'Bearer ' + currentTokens.access}});
-        console.log("Response status for play: " + response.status);
-        return response.status >= 200 && response.status < 300;
-    } catch (e) {
-        console.log("Play failed")
-        console.log(e.response)
-        return false;
-    }
-}
