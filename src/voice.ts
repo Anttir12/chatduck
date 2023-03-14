@@ -1,12 +1,8 @@
 import {createAudioPlayer, joinVoiceChannel} from '@discordjs/voice';
-import { createClient } from 'redis';
 import 'dotenv/config';
 import {VoiceBasedChannel, VoiceChannel} from 'discord.js';
 
 const player = createAudioPlayer();
-export const r = createClient({
-    url: process.env.REDIS_URL,
-});
 
 const joinVoice = (voiceChannel: VoiceChannel|VoiceBasedChannel) => {
     const connection = joinVoiceChannel({
