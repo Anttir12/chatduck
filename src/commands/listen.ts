@@ -5,15 +5,13 @@ import * as prism from 'prism-media';
 import {Command} from './command';
 import * as websocket from 'websocket-stream';
 import {getWsToken} from '../dbot-client';
-import {Readable} from 'stream';
-import {player} from '../voice';
+import {addToQueue} from '../voice';
 import * as fs from 'fs';
 
 interface AudioListener {
     stream: AudioReceiveStream
     webSocket: websocket.WebSocketDuplex
 }
-
 const currentlyListening: Record<string, AudioListener> = {};
 
 const command: Command = {
@@ -74,20 +72,8 @@ const command: Command = {
                         {
                             try
                             {
-                                const readable = new Readable({
-                                    read(size) {
-                                        console.log("Reading "+size);
-                                        console.log(this.readable)
-                                    }
-                                });
                                 const buffer = Buffer.from(cls.data);
-                                readable.push(buffer);
-                                /*
-                                const resource = createAudioResource(readable);
-                                player.play(resource);*/
-                                fs.writeFileSync("/tmp/node.ogg", buffer);
-                                const resource = createAudioResource("/tmp/node.ogg");
-                                player.play(resource);
+                                addToQueue(buffer);
                             }
                             catch (e)
                             {

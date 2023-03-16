@@ -1,10 +1,28 @@
-import {createAudioPlayer, joinVoiceChannel} from '@discordjs/voice';
+import {createAudioPlayer, createAudioResource, joinVoiceChannel} from '@discordjs/voice';
 import 'dotenv/config';
 import {VoiceBasedChannel, VoiceChannel} from 'discord.js';
+import * as fs from 'fs';
 
 const player = createAudioPlayer();
+const audioResourceQueue: Array<Buffer> = []
+export const initialiseVoiceThing = async () => {
+	setInterval(async () => {
+        if (player.state.status === 'idle' && audioResourceQueue.length > 0) {
+            const finalBuffers = []
+            while(audioResourceQueue.length > 0){
+                finalBuffers.push(audioResourceQueue.shift())
+            }
+            const finalBuffer = Buffer.concat(finalBuffers)
+            console.log("combined "+finalBuffers.length+" Buffers")
+            const filename = "/tmp/temp_buffer.ogg";
+            fs.writeFileSync(filename, finalBuffer);
+            const resource = createAudioResource(filename);
+            player.play(resource)
+        }
+	}, 1);
+}
 
-const joinVoice = (voiceChannel: VoiceChannel|VoiceBasedChannel) => {
+export const joinVoice = (voiceChannel: VoiceChannel|VoiceBasedChannel) => {
     const connection = joinVoiceChannel({
         channelId: voiceChannel.id,
         guildId: voiceChannel.guild.id,
@@ -14,4 +32,9 @@ const joinVoice = (voiceChannel: VoiceChannel|VoiceBasedChannel) => {
     connection.subscribe(player);
 }
 
-export { player, joinVoice };
+export const addToQueue = (resource: Buffer) => {
+    audioResourceQueue.push(resource)
+}
+
+
+export { player };

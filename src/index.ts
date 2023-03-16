@@ -6,6 +6,8 @@ import { Client, GatewayIntentBits, Collection } from 'discord.js';
 import 'dotenv/config';
 import {Command} from "./commands/command";
 import {initialiseDbotClient} from "./dbot-client";
+import {initialiseVoiceThing} from "./voice";
+import {getVoiceConnection} from "@discordjs/voice";
 
 const client = new Client({ intents: [
 		GatewayIntentBits.Guilds,
@@ -24,6 +26,7 @@ const commandFiles = readdirSync(commandsPath).filter(file => file.endsWith('.js
 		const commandFile = await import(filePath);
 		commands.set(commandFile.command.data.name, commandFile.command);
 	}
+	await initialiseVoiceThing();
 	await initialiseDbotClient();
 })();
 
@@ -60,6 +63,26 @@ client.on("reconnecting", () => {
 });
 client.on('error', (error: Error) => {
 	console.error("Discord error:", error);
+});
+
+client.on('voiceStateUpdate', async (oldState, newState) => {
+	const botInVoice = Boolean(newState.guild.members.me.voice.channel);
+	const botInOldChannel = botInVoice && oldState.channel?.members.some(member => member.user.id === client.user.id);
+
+	if (botInOldChannel) {
+		if(oldState.channel.members.size < 2 && botInVoice) {
+			console.log("Leaving voice soon...");
+			setTimeout(() => {
+				if(oldState.channel.members.size < 2) {
+					const connection = getVoiceConnection(newState.guild.id);
+					connection.destroy();
+					console.log("Left voice");
+				} else {
+					console.log("Never mind. I'm no longer alone");
+				}
+				}, 2500);
+		}
+	}
 });
 
 client.login(process.env.DISCORD_TOKEN);
