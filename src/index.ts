@@ -1,17 +1,20 @@
 import { readdirSync } from 'fs';
 import { join } from 'path';
 //import { generateDependencyReport } from '@discordjs/voice';
-import { Client, GatewayIntentBits, Collection } from 'discord.js';
+import {Client, GatewayIntentBits, Collection, Events} from 'discord.js';
 
 import 'dotenv/config';
 import {Command} from "./commands/command";
 import {initialiseDbotClient} from "./dbot-client";
 import {initialiseVoiceThing} from "./voice";
 import {getVoiceConnection} from "@discordjs/voice";
+import {initialiseGptThing} from "./gpt";
 
-const client = new Client({ intents: [
+export const client = new Client({ intents: [
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.GuildVoiceStates,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.MessageContent,
 ]});
 
 // Dynamically load and register commands from commands directory
@@ -28,9 +31,10 @@ const commandFiles = readdirSync(commandsPath).filter(file => file.endsWith('.js
 	}
 	await initialiseVoiceThing();
 	await initialiseDbotClient();
+	await initialiseGptThing();
 })();
 
-client.on('interactionCreate', async interaction => {
+client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
 
 	const command = commands.get(interaction.commandName);
@@ -51,7 +55,7 @@ client.on('interactionCreate', async interaction => {
 	}
 });
 
-client.on("ready", () => {
+client.on(Events.ClientReady, () => {
 	console.log('Connected to Discord server');
 	//console.log(generateDependencyReport());
 });

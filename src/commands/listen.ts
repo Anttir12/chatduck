@@ -1,12 +1,12 @@
 import 'dotenv/config';
 import {ChatInputCommandInteraction, GuildMember, MessageEvent, SlashCommandBuilder} from 'discord.js';
-import {AudioReceiveStream, createAudioResource, EndBehaviorType, getVoiceConnection} from '@discordjs/voice';
+import {AudioReceiveStream, EndBehaviorType, getVoiceConnection} from '@discordjs/voice';
 import * as prism from 'prism-media';
 import {Command} from './command';
 import * as websocket from 'websocket-stream';
 import {getWsToken} from '../dbot-client';
 import {addToQueue} from '../voice';
-import * as fs from 'fs';
+
 
 interface AudioListener {
     stream: AudioReceiveStream
