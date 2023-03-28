@@ -133,8 +133,9 @@ const initGpt4ws = async (userMessage: string, channel: TextBasedChannel, initMe
 
 export const initialiseGptThing = async () => {
 	client.on(Events.MessageCreate, async (message) => {
-		if (message.author.id !== client.user.id && message.channel.id == gptChannelId) {
-			await initGpt4ws(message.content, message.channel);
+		if (message.author.id !== client.user.id && message.channel.id == gptChannelId &&
+			message.content[0] === "!") {
+			await initGpt4ws(message.content.slice(1), message.channel);
 		}
 	});
 }
