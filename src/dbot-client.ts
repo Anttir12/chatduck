@@ -70,6 +70,6 @@ export const getWsToken = async () => {
 
 export const initialiseDbotClient = async () => {
     await getTokens();
-    setInterval(getTokens, 21600000);  // refresh token is valid for 24 hours but refresh every 6 tokens anyway
+    setInterval(getTokens, 21600000);  // refresh token is valid for 24 hours but refresh every 6 hours anyway
     setInterval(refreshAccessToken, 150000);  // Access token is valid for 5 minutes. let's refresh it every 2,5 minutes
 };

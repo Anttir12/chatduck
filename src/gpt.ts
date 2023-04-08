@@ -7,7 +7,7 @@ import * as WebSocket from "ws";
 const gptChannelId = process.env.GPT4_CHANNEL
 
 
-const initGpt4ws = async (userMessage: string, channel: TextBasedChannel, initMessagesCount = 3) => {
+const initGpt4ws = async (userMessage: string, channel: TextBasedChannel, initMessagesCount = 2) => {
 	const responseMessages: Message[] = [];
 	const responseChunks: string[] = [];
 	for (let i = 0; i < initMessagesCount; i++) {
@@ -27,7 +27,7 @@ const initGpt4ws = async (userMessage: string, channel: TextBasedChannel, initMe
 		const maxMessageLength = 1950; //Actual limit is 2000, just leaving 50 in case we want to add something
 		gpt4ws.on('open', () => {
 			gpt4ws.send(userMessage);
-			waitTime = 500;
+			waitTime = 750;
 		})
 
 		gpt4ws.on('error', (err) => {
@@ -110,7 +110,9 @@ const initGpt4ws = async (userMessage: string, channel: TextBasedChannel, initMe
 					responseMessages[responseInUse] = await channel.send(tmpMessage);
 				}
 				else{
-					await responseMessages[responseInUse].edit(tmpMessage);
+					setTimeout(async () => {
+						await responseMessages[responseInUse].edit(tmpMessage);
+					}, waitTime / 2);
 				}
 
 				waitTime = Math.min(maxWaitTime, waitTime + 300);
